@@ -9,7 +9,7 @@ mongoose.connect("mongodb://localhost:27017/authentication", {
   useUnifiedTopology: true,
 });
 app.post("/signup", async (req, res) => {
-  const { username, password, email, phoneNo } = req.body;
+  const {username, password, email, phoneNo } = req.body;
   const userexist = await User.findOne({ email });
   if (!userexist) {
     const newUser = {
@@ -40,6 +40,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT || 2000,()=>{
    console.log("server running on port 2000")
 });
