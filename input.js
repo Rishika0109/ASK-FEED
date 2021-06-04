@@ -2,11 +2,33 @@ const express = require("express");
 const { User } = require("./user.model");
 const mongoose = require("mongoose");
 const bcryptjs = require("bcryptjs");
+const passport=require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
 app.use(express.json());
 mongoose.connect("mongodb://localhost:27017/authentication", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+});
+passport.use(new GoogleStrategy({
+  clientID: '652161168885-sev8msh3qtemn2nkpgecheti7g3tnduh.apps.googleusercontent.com',
+  clientSecret: 'DJsIExyoeSxB4XAGxO2F8s8O',
+  callbackURL: "/auth/google/callback"
+},
+function(accessToken, refreshToken, profile, cb) {
+  User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    return cb(err, user);
+  });
+}
+));
+app.get('/auth/google',
+passport.authenticate('google', { scope: ['profile'] }));
+
+app.get('/auth/google/callback', 
+passport.authenticate('google', { failureRedirect: '/login' }),
+function(req, res) {
+  // Successful authentication, redirect home.
+  res.redirect('/');
 });
 app.post("/signup", async (req, res) => {
   const { username, password, email, phoneNo } = req.body;
